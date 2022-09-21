@@ -1,5 +1,6 @@
 package com.example.newbarcode;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,16 +22,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.newbarcode.Model.ScanBarcodeData;
+import com.example.newbarcode.Model.ScanBarcodeResponse;
+import com.example.newbarcode.Services.ApiInterface;
+import com.example.newbarcode.Services.ApiService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 public class Front_View extends AppCompatActivity {
     String trial = "";
-
+    private List<ScanBarcodeResponse> list;
     BottomNavigationView bottomNavigationView;
     FloatingActionButton floatingActionButton;
 
@@ -40,9 +49,11 @@ public class Front_View extends AppCompatActivity {
         setContentView(R.layout.activity_front_view);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setBackground(null);
+        bottomNavigationView.getMenu().getItem(1).setEnabled(false);
         floatingActionButton = findViewById(R.id.fab);
 
-         getSupportFragmentManager().beginTransaction().replace(R.id.relativelayout, new HomeFragment()).commit();
+         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
 
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -72,18 +83,18 @@ public class Front_View extends AppCompatActivity {
 
                 switch (item.getItemId()){
                     case R.id.home:
-                        Bundle amat = new Bundle();
-                        amat.putString("ee", trial);
+                        Bundle data = new Bundle();
+                        data.putString("ee", trial);
                         pilihFragment = new HomeFragment();
-                        pilihFragment.setArguments(amat);
-                        getSupportFragmentManager().beginTransaction().add(R.id.relativelayout, pilihFragment).commit();
+                        pilihFragment.setArguments(data);
+                        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, pilihFragment).commit();
                         break;
                     case R.id.add:
                         pilihFragment = new AddFragment();
                         break;
                 }
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.relativelayout, pilihFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, pilihFragment).commit();
 
                 return true;
             }
@@ -100,6 +111,7 @@ public class Front_View extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if(requestCode == 20){
             if(resultCode == RESULT_OK && data != null){
                trial = data.getStringExtra("result");

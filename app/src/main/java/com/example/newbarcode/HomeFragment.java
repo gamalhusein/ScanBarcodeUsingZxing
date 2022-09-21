@@ -1,26 +1,36 @@
 package com.example.newbarcode;
 
 
-
-import static android.app.Activity.RESULT_OK;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.app.Dialog;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+
+
+import com.example.newbarcode.Model.ScanBarcodeResponse;
+import com.example.newbarcode.Services.ApiInterface;
+import com.example.newbarcode.Services.ApiService;
+import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -40,7 +50,10 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private String ayam;
+    private String getData;
+
+
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -70,8 +83,10 @@ public class HomeFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-            ayam = getArguments().getString("ee");
+            getData = getArguments().getString("ee");
         }
+
+
     }
 
     @Override
@@ -80,33 +95,72 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        TextView text = view.findViewById(R.id.test);
-        Button btn = view.findViewById(R.id.ujicoba);
 
-        text.setText(ayam);
+        ImageView photo = view.findViewById(R.id.img_aset);
+        TextView barcode = view.findViewById(R.id.tv_barcode);
+        TextView newInventory = view.findViewById(R.id.tv_new_inventory);
+        TextView deskripsi = view.findViewById(R.id.tv_deskripsi);
+        TextView assetDeskripsi = view.findViewById(R.id.tv_asset_deskripsi);
+        TextView stokOfName = view.findViewById(R.id.tv_stokopname);
 
-        //Log.d("tag", "coba : " + ayam);
-        btn.setOnClickListener(new View.OnClickListener() {
+        TextView lokasiStorage = view.findViewById(R.id.tv_storage_location);
+        TextView copyStorage = view.findViewById(R.id.tv_copy_storage);
+        TextView sucofindo = view.findViewById(R.id.tv_sucofindo);
+        TextView noAsset = view.findViewById(R.id.tv_no_asset);
+        TextView remarks = view.findViewById(R.id.tv_remarks);
+        TextView kondisi = view.findViewById(R.id.tv_kondisi);
+
+        TextView updateBy = view.findViewById(R.id.tv_update_by);
+        TextView updateDate = view.findViewById(R.id.tv_update_date);
+        TextView status = view.findViewById(R.id.tv_status);
+
+
+
+
+        ApiInterface service = ApiService.getBarcode().create(ApiInterface.class);
+        Call<ScanBarcodeResponse> scanqr = service.getScanBarcode(getData);
+        scanqr.enqueue(new Callback<ScanBarcodeResponse>() {
             @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage(ayam)
-                        .setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.cancel();
-                            }
-                        });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+            public void onResponse(Call<ScanBarcodeResponse> call, Response<ScanBarcodeResponse> response) {
+                if(response.isSuccessful()){
+                   barcode.setText(response.body().getData().getBARCODE());
+                   Picasso.get()
+                           .load("https://rocat.scu.co.id/go/dg/204/gen_sto/"+response.body().getData().getDIGITAL())
+                           .error(R.drawable.eror)
+                           .fit().centerCrop()
+                           .into(photo);
+                   Log.d("tag","tes "+response.body().getData().getDIGITAL());
+                   newInventory.setText(response.body().getData().getNEWINVENTORYNO());
+                   deskripsi.setText(response.body().getData().getDESCRIPTION());
+                   assetDeskripsi.setText(response.body().getData().getASSETDESCRIPTIONSKK());
+                   stokOfName.setText(response.body().getData().getSTOCKOFNAME());
+                   lokasiStorage.setText(response.body().getData().getSTORAGELOCATION2());
+                   copyStorage.setText(response.body().getData().getCOPYSTORAGELOCATION2());
+                   sucofindo.setText(response.body().getData().getSUCOFINDOBARCODE());
+                   noAsset.setText(response.body().getData().getNOASSET());
+                   remarks.setText(response.body().getData().getREMARKS());
+                   kondisi.setText(response.body().getData().getREMARKS());
+
+                   updateBy.setText(response.body().getData().getUPDATEBY());
+                   updateDate.setText(response.body().getData().getUPDATEDATE());
+                   status.setText(response.body().getData().getSTATUS());
+
+
+
+                } else{
+                    Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ScanBarcodeResponse> call, Throwable t) {
+                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-
-
-
         return view;
     }
+
 
 
 

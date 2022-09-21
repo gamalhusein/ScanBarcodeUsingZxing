@@ -63,7 +63,7 @@ public class AddFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_add, container, false);
-        addtext = view.findViewById(R.id.add1);
+
 
 
 

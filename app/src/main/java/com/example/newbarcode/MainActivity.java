@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String Username = username.getText().toString();
-                String Password = password.getText().toString();
+                String Username = username.getText().toString().trim();
+                String Password = password.getText().toString().trim();
 
                 if (Username.equals("gamal") && Password.equals("test123")){
                     //Toast.makeText(MainActivity.this, "Berhasil Login", Toast.LENGTH_SHORT).show();
